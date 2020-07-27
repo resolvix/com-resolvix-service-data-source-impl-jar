@@ -5,19 +5,16 @@ import com.resolvix.service.datasource.api.event.AvailabilityChange;
 import com.resolvix.service.datasource.api.monitor.Availability;
 import com.resolvix.service.datasource.api.monitor.Monitor;
 import com.resolvix.service.datasource.api.monitor.Reliability;
+import com.resolvix.service.datasource.event.AvailabilityChangeImpl;
 
 import javax.sql.DataSource;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 
 public class MonitorImpl<A>
     implements Monitor<A>
 {
     private DataSource dataSource;
-
-    private Monitor monitor;
 
     private volatile A availability;
 
@@ -27,15 +24,25 @@ public class MonitorImpl<A>
 
     public MonitorImpl(
         DataSource dataSource,
-        Monitor<A> monitor)
-    {
+        A initialAvailability) {
         this.dataSource = dataSource;
-        this.monitor = monitor;
+        this.availability = initialAvailability;
     }
 
     @Override
-    public synchronized Availability getAvailability() {
-        return null;
+    public synchronized A getAvailability() {
+        return availability;
+    }
+
+    protected void setAvailability(A availability) {
+        AvailabilityChange<A> availabilityChange = AvailabilityChangeImpl.of(
+            this.availability, availability, Instant.now());
+        synchronized (this) {
+            this.availabilityChanges.add(availabilityChange);
+            this.availability = availability;
+        }
+        for (MonitorListener<A> listener : this.listeners)
+            listener.updateAvailability(availability);
     }
 
     @Override
@@ -51,6 +58,10 @@ public class MonitorImpl<A>
     @Override
     public synchronized void addListener(MonitorListener listener) {
         listeners.add(listener);
+    }
+
+    protected synchronized List<MonitorListener<A>> getListeners() {
+        return Collections.unmodifiableList(listeners);
     }
 
     @Override

@@ -2,11 +2,14 @@ package com.resolvix.service.datasource.base;
 
 import com.resolvix.service.datasource.api.SelectorListener;
 import com.resolvix.service.datasource.api.SwitchedDataSource;
+import com.resolvix.service.datasource.api.event.Change;
 import com.resolvix.service.datasource.api.selector.Selector;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 
 public abstract class BaseSwitchedDataSourceImpl<S>
@@ -78,6 +81,20 @@ public abstract class BaseSwitchedDataSourceImpl<S>
     public synchronized S getState() {
         return state;
     }
+
+    //
+    //  RecentChangeHistory
+    //
+
+    @Override
+    public List<Change> getRecentChangeHistory() {
+        return Collections.unmodifiableList(
+            getSelector().getRecentChangeHistory());
+    }
+
+    //
+    //  Object
+    //
 
     @Override
     protected void finalize() throws Throwable {

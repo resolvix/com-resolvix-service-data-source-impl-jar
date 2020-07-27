@@ -15,7 +15,7 @@ public abstract class BaseSelectorImpl<S>
 {
     private DataSource dataSource;
 
-    private S state;
+    private volatile S state;
 
     private Deque<StateChange<S>> stateChanges = new ArrayDeque<>();
 
@@ -38,10 +38,10 @@ public abstract class BaseSelectorImpl<S>
         StateChange<S> stateChange = StateChangeImpl.of(
             this.state, state, Instant.now());
         synchronized (this) {
-            stateChanges.add(stateChange);
+            this.stateChanges.add(stateChange);
             this.state = state;
         }
-        for (SelectorListener<S> listener : listeners)
+        for (SelectorListener<S> listener : this.listeners)
             listener.updateState(state);
     }
 
