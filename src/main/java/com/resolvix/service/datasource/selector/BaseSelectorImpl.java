@@ -5,7 +5,6 @@ import com.resolvix.service.datasource.api.event.StateChange;
 import com.resolvix.service.datasource.api.selector.Selector;
 import com.resolvix.service.datasource.event.StateChangeImpl;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.sql.DataSource;
 import java.time.Instant;
 import java.util.*;

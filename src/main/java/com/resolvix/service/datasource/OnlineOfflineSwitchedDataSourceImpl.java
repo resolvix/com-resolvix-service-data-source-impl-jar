@@ -3,13 +3,11 @@ package com.resolvix.service.datasource;
 import com.resolvix.service.datasource.api.MonitoredDataSource;
 import com.resolvix.service.datasource.api.OnlineOfflineSwitchedDataSource;
 import com.resolvix.service.datasource.api.State;
-import com.resolvix.service.datasource.api.event.Change;
 import com.resolvix.service.datasource.api.selector.Selector;
 import com.resolvix.service.datasource.base.BaseSwitchedDataSourceImpl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 public class OnlineOfflineSwitchedDataSourceImpl<S extends State>
     extends BaseSwitchedDataSourceImpl<S>
