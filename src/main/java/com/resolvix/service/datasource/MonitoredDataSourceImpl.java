@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 public class MonitoredDataSourceImpl
     implements MonitoredDataSource<Availability, Reliability, Performance>
 {
+    private static final String SQLSTATE_CONNECTION_EXCEPTION_CLASS = "08";
+
     private final ReadWriteLock readWriteLock;
 
     private final Lock readLock;
@@ -52,7 +54,15 @@ public class MonitoredDataSourceImpl
         return new MonitoredDataSourceImpl(dataSource, initialAvailability);
     }
 
-    private static final String SQLSTATE_CONNECTION_EXCEPTION_CLASS = "08";
+    private class Listener
+        implements com.resolvix.lib.monitor.api.Listener<Availability>
+    {
+
+        @Override
+        public void signal(Availability property) {
+            MonitoredDataSourceImpl.this.setAvailability(property);
+        }
+    }
 
     private void processConnectionFailure(SQLException e) {
         String sqlState = e.getSQLState();
@@ -160,7 +170,6 @@ public class MonitoredDataSourceImpl
     //
     //  Wrapper
     //
-
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
