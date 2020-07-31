@@ -4,21 +4,24 @@ import com.resolvix.lib.monitor.api.Listener;
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.lib.monitor.api.Probe;
 
-import javax.validation.constraints.NotNull;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
+import static com.resolvix.lib.monitor.base.WeakReferenceUtils.compact;
+import static com.resolvix.lib.monitor.base.WeakReferenceUtils.find;
+
 public abstract class BaseMonitorImpl<P>
     implements Monitor<P>
 {
     private ScheduledExecutorService scheduledExecutorService;
+
+    private volatile P state;
 
     private List<Probe<P>> probes;
 
@@ -30,25 +33,20 @@ public abstract class BaseMonitorImpl<P>
         this.probes = new ArrayList<>();
     }
 
-    private <T> WeakReference<T> find(Iterable<WeakReference<T>> iterable, @NotNull T t) {
-        Iterator<WeakReference<T>> it = iterable.iterator();
-        while (it.hasNext()) {
-            WeakReference<T> weakReference = it.next();
-            if (t.equals(weakReference.get()))
-                return weakReference;
+    public synchronized P state() {
+        return state;
+    }
+
+    @Override
+    public synchronized void addListener(Listener<P> listener) {
+        if (find(listeners, listener) == null) {
+            listeners = compact(listeners);
+            listeners.add(new WeakReference<>(listener));
         }
-        return null;
     }
 
     @Override
-    public void addListener(Listener<P> listener) {
-        if (find(listeners, listener) == null)
-            listeners.add(
-                new WeakReference<>(listener));
-    }
-
-    @Override
-    public List<Listener<P>> getListeners() {
+    public synchronized List<Listener<P>> getListeners() {
         return Collections.unmodifiableList(
             listeners.stream()
                 .map(WeakReference::get)
@@ -56,28 +54,29 @@ public abstract class BaseMonitorImpl<P>
     }
 
     @Override
-    public void removeListener(Listener<P> listener) {
+    public synchronized void removeListener(Listener<P> listener) {
         WeakReference<Listener<P>> weakReference
             = find(listeners, listener);
         if (weakReference != null)
             listeners.remove(weakReference);
+        listeners = compact(listeners);
     }
 
     @Override
-    public void addProbe(Probe<P> probe) {
+    public synchronized void addProbe(Probe<P> probe) {
         probes.add(probe);
     }
 
     @Override
-    public List<Probe<P>> getProbes() {
+    public synchronized List<Probe<P>> getProbes() {
         return Collections.unmodifiableList(probes);
     }
 
-    private Callable<P> fromProbe(Probe<P> probe) {
+    private synchronized Callable<P> fromProbe(Probe<P> probe) {
         return probe::probe;
     }
 
-    private void update() {
+    private synchronized void update() {
         try {
             List<Future<P>> futures = scheduledExecutorService.invokeAll(
                 probes.stream()
@@ -95,7 +94,7 @@ public abstract class BaseMonitorImpl<P>
     }
 
     @Override
-    public void removeProbe(Probe<P> probe) {
+    public synchronized void removeProbe(Probe<P> probe) {
         probes.remove(probe);
     }
 }

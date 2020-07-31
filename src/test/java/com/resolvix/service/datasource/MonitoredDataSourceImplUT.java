@@ -1,5 +1,7 @@
 package com.resolvix.service.datasource;
 
+import com.resolvix.lib.monitor.api.Monitor;
+import com.resolvix.service.datasource.api.MonitoredConnection;
 import com.resolvix.service.datasource.api.monitor.Availability;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,18 +9,22 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.sql.DataSource;
-
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 public class MonitoredDataSourceImplUT {
 
     @Mock
     private DataSource dataSource;
+
+    @Mock
+    private Monitor<Availability> monitor;
 
     @Mock
     private Connection connection;
@@ -30,8 +36,10 @@ public class MonitoredDataSourceImplUT {
 
     @Test
     public void monitoredDataSourceInitialAvailabilityUp() {
+        when(monitor.state())
+            .thenReturn(Availability.UP);
         MonitoredDataSourceImpl monitoredDataSource
-            = MonitoredDataSourceImpl.of(dataSource, Availability.UP);
+            = MonitoredDataSourceImpl.of(dataSource, monitor);
         assertThat(
             monitoredDataSource.getAvailability(),
             equalTo(Availability.UP));
@@ -46,9 +54,36 @@ public class MonitoredDataSourceImplUT {
     }
 
     @Test
-    public void monitoredDataSourceInitialAvailabilityDown() {
+    public void monitoredDataSourceGetConnection() throws Exception {
+        when(monitor.state())
+            .thenReturn(Availability.UP);
+        when(dataSource.getConnection())
+            .thenReturn(connection);
+
         MonitoredDataSourceImpl monitoredDataSource
-            = MonitoredDataSourceImpl.of(dataSource, Availability.DOWN);
+            = MonitoredDataSourceImpl.of(dataSource, monitor);
+
+        Connection connection
+            = monitoredDataSource.getConnection();
+
+        connection.close();
+
+        assertTrue(
+            Proxy.isProxyClass(connection.getClass()));
+
+        assertThat(
+            connection,
+            allOf(
+                instanceOf(Connection.class),
+                instanceOf(MonitoredConnection.class)));
+    }
+
+    @Test
+    public void monitoredDataSourceInitialAvailabilityDown() {
+        when(monitor.state())
+            .thenReturn(Availability.DOWN);
+        MonitoredDataSourceImpl monitoredDataSource
+            = MonitoredDataSourceImpl.of(dataSource, monitor);
         assertThat(
             monitoredDataSource.getAvailability(),
             equalTo(Availability.DOWN));
@@ -64,8 +99,10 @@ public class MonitoredDataSourceImplUT {
 
     @Test
     public void monitoredDataSourceIntermittentFailure() throws Exception {
+        when(monitor.state())
+            .thenReturn(Availability.UP);
         MonitoredDataSourceImpl monitoredDataSource
-            = MonitoredDataSourceImpl.of(dataSource, Availability.UP);
+            = MonitoredDataSourceImpl.of(dataSource, monitor);
         assertThat(
             monitoredDataSource.getAvailability(),
             equalTo(Availability.UP));
@@ -90,6 +127,10 @@ public class MonitoredDataSourceImplUT {
             }
         }
 
+        assertThat(
+            monitoredDataSource.getAvailability(),
+            equalTo(Availability.UP));
+
         for (int i = 1; i <= 2; i++) {
             try {
                 monitoredDataSource.getConnection();
@@ -97,6 +138,10 @@ public class MonitoredDataSourceImplUT {
                 //
             }
         }
+
+        assertThat(
+            monitoredDataSource.getAvailability(),
+            equalTo(Availability.UP));
 
         for (int i = 1; i <= 4; i++) {
             try {

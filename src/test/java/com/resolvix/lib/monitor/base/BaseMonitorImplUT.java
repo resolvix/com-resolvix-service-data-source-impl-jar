@@ -58,6 +58,11 @@ public class BaseMonitorImplUT {
             empty());
     }
 
+    @Test
+    public void listenerWeakReferenceGarbageCollectionBehaviour() {
+
+    }
+
     public void addAndRemoveProbe() {
         localMonitor.addProbe(probe);
         assertThat(

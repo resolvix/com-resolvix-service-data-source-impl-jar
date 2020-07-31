@@ -1,5 +1,7 @@
 package com.resolvix.service.datasource;
 
+import com.resolvix.lib.monitor.api.Monitor;
+import com.resolvix.service.datasource.api.MonitoredConnection;
 import com.resolvix.service.datasource.api.MonitoredDataSource;
 import com.resolvix.service.datasource.api.event.AvailabilityChange;
 import com.resolvix.service.datasource.api.event.Change;
@@ -21,6 +23,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
+import static com.resolvix.lib.monitor.base.DynamicProxyUtils.createProxy;
+
 public class MonitoredDataSourceImpl
     implements MonitoredDataSource<Availability, Reliability, Performance>
 {
@@ -34,24 +38,31 @@ public class MonitoredDataSourceImpl
 
     private final DataSource dataSource;
 
+    private final Monitor<Availability> monitor;
+
+    private final Listener listener;
+
     private final Deque<AvailabilityChange<Availability>> availabilityChanges;
 
     private volatile Availability availability;
 
     private volatile int connectionFailures;
 
-    private MonitoredDataSourceImpl(DataSource dataSource, Availability initialAvailability) {
+    private MonitoredDataSourceImpl(DataSource dataSource, Monitor<Availability> monitor) {
         this.readWriteLock = new ReentrantReadWriteLock();
         this.readLock = readWriteLock.readLock();
         this.writeLock = readWriteLock.writeLock();
         this.dataSource = dataSource;
+        this.monitor = monitor;
         this.availabilityChanges = new ArrayDeque<>();
-        this.availability = initialAvailability;
+        this.availability = monitor.state();
         this.connectionFailures = 0;
+        this.listener = new Listener();
+        this.monitor.addListener(this.listener);
     }
 
-    public static MonitoredDataSourceImpl of(DataSource dataSource, Availability initialAvailability) {
-        return new MonitoredDataSourceImpl(dataSource, initialAvailability);
+    public static MonitoredDataSourceImpl of(DataSource dataSource, Monitor<Availability> monitor) {
+        return new MonitoredDataSourceImpl(dataSource, monitor);
     }
 
     private class Listener
@@ -117,7 +128,10 @@ public class MonitoredDataSourceImpl
             }
         }
 
-        return connection;
+        MonitoredConnectionImpl monitoredConnection
+            = MonitoredConnectionImpl.of(connection, monitor);
+
+        return createProxy(monitoredConnection, Connection.class, MonitoredConnection.class);
     }
 
     @Override
