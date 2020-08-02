@@ -3,6 +3,7 @@ package com.resolvix.service.datasource.base.proxy;
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.service.datasource.api.MonitoredStatement;
 import com.resolvix.service.datasource.api.monitor.Availability;
+import com.resolvix.service.datasource.proxy.MonitoredResultSetImpl;
 
 import java.sql.*;
 
@@ -103,7 +104,9 @@ public abstract class BaseMonitoredStatementProxyImpl<S extends Statement>
 
     @Override
     public ResultSet getResultSet() throws SQLException {
-        return invoke(ResultSet.class, SQLException.class, statement::getResultSet);
+        return MonitoredResultSetImpl.of(
+            invoke(ResultSet.class, SQLException.class, statement::getResultSet),
+            monitor);
     }
 
     @Override

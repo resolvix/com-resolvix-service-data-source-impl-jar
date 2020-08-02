@@ -1,7 +1,6 @@
 package com.resolvix.service.datasource.proxy;
 
 import com.resolvix.lib.monitor.api.Monitor;
-import com.resolvix.service.datasource.api.MonitoredConnection;
 import com.resolvix.service.datasource.api.MonitoredDataSource;
 import com.resolvix.service.datasource.api.event.AvailabilityChange;
 import com.resolvix.service.datasource.api.event.Change;
@@ -23,7 +22,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
-import static com.resolvix.lib.monitor.base.DynamicProxyUtils.createProxy;
 import static com.resolvix.service.datasource.SqlExceptionUtils.isConnectionException;
 
 public class MonitoredDataSourceImpl
@@ -131,10 +129,12 @@ public class MonitoredDataSourceImpl
             }
         }
 
-        MonitoredConnectionInvocationHandlerImpl monitoredConnection
-            = MonitoredConnectionInvocationHandlerImpl.of(connection, monitor);
+//        MonitoredConnectionInvocationHandlerImpl monitoredConnection
+//            = MonitoredConnectionInvocationHandlerImpl.of(connection, monitor);
+//
+//        return createProxy(monitoredConnection, Connection.class, MonitoredConnection.class);
 
-        return createProxy(monitoredConnection, Connection.class, MonitoredConnection.class);
+        return MonitoredConnectionImpl.of(connection, monitor);
     }
 
     @Override

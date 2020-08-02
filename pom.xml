@@ -3,6 +3,12 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>com.resolvix</groupId>
+    <artifactId>com-resolvix-parent-pom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
   <groupId>com.resolvix</groupId>
   <artifactId>service-data-source-impl-jar</artifactId>
   <version>0.0.1-SNAPSHOT</version>
@@ -29,6 +35,7 @@
     <org-mockito-mockito-core.version>2.23.4</org-mockito-mockito-core.version>
     <org-jboss-weld-se-weld-se.version>2.4.8.Final</org-jboss-weld-se-weld-se.version>
     <org-jboss-weld-weld-junit4.version>2.0.1.Final</org-jboss-weld-weld-junit4.version>
+    <com-h2database-h2.version>1.4.200</com-h2database-h2.version>
   </properties>
 
   <dependencies>
@@ -103,6 +110,7 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${org.slf4j.slf4j-simple.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -139,10 +147,52 @@
       <version>${org-jboss-weld-weld-junit4.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${com-h2database-h2.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <finalName>lib-service</finalName>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
+
+<!--    <plugins>-->
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-resources-plugin</artifactId>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>copy-resources</id>-->
+<!--            <phase>validate</phase>-->
+<!--            <goals>-->
+<!--              <goal>copy-resources</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <outputDirectory>${basedir}/target/classes</outputDirectory>-->
+<!--              <resources>-->
+<!--                <directory>${basedir}/src/main/resources</directory>-->
+<!--              </resources>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
+<!--    </plugins>-->
+
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <plugin>
