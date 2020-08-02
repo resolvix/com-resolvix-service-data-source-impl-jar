@@ -1,8 +1,9 @@
-package com.resolvix.service.datasource;
+package com.resolvix.service.datasource.proxy;
 
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.service.datasource.api.MonitoredConnection;
 import com.resolvix.service.datasource.api.monitor.Availability;
+import com.resolvix.service.datasource.proxy.MonitoredDataSourceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,7 +37,7 @@ public class MonitoredDataSourceImplUT {
 
     @Test
     public void monitoredDataSourceInitialAvailabilityUp() {
-        when(monitor.state())
+        when(monitor.getState())
             .thenReturn(Availability.UP);
         MonitoredDataSourceImpl monitoredDataSource
             = MonitoredDataSourceImpl.of(dataSource, monitor);
@@ -55,7 +56,7 @@ public class MonitoredDataSourceImplUT {
 
     @Test
     public void monitoredDataSourceGetConnection() throws Exception {
-        when(monitor.state())
+        when(monitor.getState())
             .thenReturn(Availability.UP);
         when(dataSource.getConnection())
             .thenReturn(connection);
@@ -80,7 +81,7 @@ public class MonitoredDataSourceImplUT {
 
     @Test
     public void monitoredDataSourceInitialAvailabilityDown() {
-        when(monitor.state())
+        when(monitor.getState())
             .thenReturn(Availability.DOWN);
         MonitoredDataSourceImpl monitoredDataSource
             = MonitoredDataSourceImpl.of(dataSource, monitor);
@@ -99,7 +100,7 @@ public class MonitoredDataSourceImplUT {
 
     @Test
     public void monitoredDataSourceIntermittentFailure() throws Exception {
-        when(monitor.state())
+        when(monitor.getState())
             .thenReturn(Availability.UP);
         MonitoredDataSourceImpl monitoredDataSource
             = MonitoredDataSourceImpl.of(dataSource, monitor);

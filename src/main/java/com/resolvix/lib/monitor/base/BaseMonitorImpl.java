@@ -33,7 +33,7 @@ public abstract class BaseMonitorImpl<P>
         this.probes = new ArrayList<>();
     }
 
-    public synchronized P state() {
+    public synchronized P getState() {
         return state;
     }
 

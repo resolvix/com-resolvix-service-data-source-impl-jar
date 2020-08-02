@@ -1,4 +1,4 @@
-package com.resolvix.service.datasource;
+package com.resolvix.service.datasource.proxy;
 
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.service.datasource.api.MonitoredConnection;
@@ -24,11 +24,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
 import static com.resolvix.lib.monitor.base.DynamicProxyUtils.createProxy;
+import static com.resolvix.service.datasource.SqlExceptionUtils.isConnectionException;
 
 public class MonitoredDataSourceImpl
     implements MonitoredDataSource<Availability, Reliability, Performance>
 {
-    private static final String SQLSTATE_CONNECTION_EXCEPTION_CLASS = "08";
 
     private final ReadWriteLock readWriteLock;
 
@@ -55,7 +55,7 @@ public class MonitoredDataSourceImpl
         this.dataSource = dataSource;
         this.monitor = monitor;
         this.availabilityChanges = new ArrayDeque<>();
-        this.availability = monitor.state();
+        this.availability = monitor.getState();
         this.connectionFailures = 0;
         this.listener = new Listener();
         this.monitor.addListener(this.listener);
@@ -65,7 +65,7 @@ public class MonitoredDataSourceImpl
         return new MonitoredDataSourceImpl(dataSource, monitor);
     }
 
-    private class Listener
+    private final class Listener
         implements com.resolvix.lib.monitor.api.Listener<Availability>
     {
 
@@ -75,19 +75,22 @@ public class MonitoredDataSourceImpl
         }
     }
 
-    private void processConnectionFailure(SQLException e) {
-        String sqlState = e.getSQLState();
-        if (!sqlState.startsWith(SQLSTATE_CONNECTION_EXCEPTION_CLASS))
-            return;
-
+    private void handleSqlConnectionException(SQLException e) {
         writeLock.lock();
         try {
             connectionFailures++;
-            if (connectionFailures > 5)
+            if (connectionFailures > 5) {
                 setAvailability(Availability.DOWN);
+                // prompt monitor to test connection
+            }
         } finally {
             writeLock.unlock();
         }
+    }
+
+    private void handleSqlException(SQLException e) {
+        if (isConnectionException(e))
+            handleSqlConnectionException(e);
     }
 
     //
@@ -115,7 +118,7 @@ public class MonitoredDataSourceImpl
         }
 
         if (sqlException != null) {
-            processConnectionFailure(sqlException);
+            handleSqlException(sqlException);
             throw sqlException;
         }
 
@@ -128,8 +131,8 @@ public class MonitoredDataSourceImpl
             }
         }
 
-        MonitoredConnectionImpl monitoredConnection
-            = MonitoredConnectionImpl.of(connection, monitor);
+        MonitoredConnectionInvocationHandlerImpl monitoredConnection
+            = MonitoredConnectionInvocationHandlerImpl.of(connection, monitor);
 
         return createProxy(monitoredConnection, Connection.class, MonitoredConnection.class);
     }
@@ -144,7 +147,7 @@ public class MonitoredDataSourceImpl
             try {
                 return dataSource.getConnection(username, password);
             } catch (SQLException e) {
-                processConnectionFailure(e);
+                handleSqlException(e);
                 throw e;
             }
         } finally {
