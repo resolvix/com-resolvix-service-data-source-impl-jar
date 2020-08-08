@@ -29,7 +29,7 @@ public abstract class BaseSwitchedDataSourceImpl<P, S extends Selector<P>, R ext
         implements Listener<P> {
 
         @Override
-        public void signal(P state) {
+        public void notify(P state) {
             BaseSwitchedDataSourceImpl.this.setState(state);
         }
     }

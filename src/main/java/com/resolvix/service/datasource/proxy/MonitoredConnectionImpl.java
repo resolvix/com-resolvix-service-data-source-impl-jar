@@ -59,7 +59,7 @@ public class MonitoredConnectionImpl
     {
 
         @Override
-        public void signal(Availability property) {
+        public void notify(Availability property) {
             MonitoredConnectionImpl.this.setAvailability(property);
         }
     }

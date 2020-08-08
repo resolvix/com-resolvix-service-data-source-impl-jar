@@ -1,6 +1,6 @@
 package com.resolvix.lib.monitor.base;
 
-import com.resolvix.lib.event.base.BaseListenerEnabledChangeHandlerImpl;
+import com.resolvix.lib.event.base.BaseSubjectImpl;
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.lib.monitor.api.Probe;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 public abstract class BaseMonitorImpl<P>
-    extends BaseListenerEnabledChangeHandlerImpl<P>
+    extends BaseSubjectImpl<P>
     implements Monitor<P>
 {
     private ScheduledExecutorService scheduledExecutorService;

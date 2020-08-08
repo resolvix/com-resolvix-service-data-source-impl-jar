@@ -68,7 +68,7 @@ public class MonitoredDataSourceImpl
     {
 
         @Override
-        public void signal(Availability property) {
+        public void notify(Availability property) {
             MonitoredDataSourceImpl.this.setAvailability(property);
         }
     }

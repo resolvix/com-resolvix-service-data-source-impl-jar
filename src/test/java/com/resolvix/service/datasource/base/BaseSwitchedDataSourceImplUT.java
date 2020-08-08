@@ -149,21 +149,21 @@ public class BaseSwitchedDataSourceImplUT {
 
     @Test
     public void testOnlineState() throws Exception {
-        listener.signal(State.ONLINE);
+        listener.notify(State.ONLINE);
         Connection connection = onlineOfflineSwitchedDataSource.getConnection();
         Assert.assertThat(connection, Matchers.sameInstance(onlineConnection));
     }
 
     @Test
     public void testWarningState() throws Exception {
-        listener.signal(State.WARNING);
+        listener.notify(State.WARNING);
         Connection connection = onlineOfflineSwitchedDataSource.getConnection();
         Assert.assertThat(connection, Matchers.sameInstance(onlineConnection));
     }
 
     @Test
     public void testOfflineState() throws Exception {
-        listener.signal(State.OFFLINE);
+        listener.notify(State.OFFLINE);
         Connection connection = onlineOfflineSwitchedDataSource.getConnection();
         Assert.assertThat(connection, Matchers.sameInstance(offlineConnection));
     }

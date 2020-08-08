@@ -4,6 +4,7 @@ import com.resolvix.service.datasource.api.event.AvailabilityChange;
 
 import java.time.Instant;
 
+@Deprecated
 public class AvailabilityChangeImpl<A>
     implements AvailabilityChange<A> {
 
@@ -30,6 +31,11 @@ public class AvailabilityChangeImpl<A>
 
     @Override
     public A getAvailability() {
+        return null;
+    }
+
+    @Override
+    public Object getPreviousState() {
         return null;
     }
 

@@ -4,6 +4,7 @@ import com.resolvix.service.datasource.api.event.StateChange;
 
 import java.time.Instant;
 
+@Deprecated
 public class StateChangeImpl<S>
     implements StateChange<S>
 {
