@@ -3,7 +3,7 @@ package com.resolvix.service.datasource.proxy;
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.service.datasource.api.MonitoredStatement;
 import com.resolvix.service.datasource.api.monitor.Availability;
-import com.resolvix.service.datasource.base.proxy.BaseMonitoredStatementProxyImpl;
+import com.resolvix.service.datasource.proxy.base.BaseMonitoredStatementProxyImpl;
 
 import java.sql.SQLException;
 import java.sql.Statement;

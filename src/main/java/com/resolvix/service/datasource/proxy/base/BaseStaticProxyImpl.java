@@ -1,4 +1,4 @@
-package com.resolvix.service.datasource.base.proxy;
+package com.resolvix.service.datasource.proxy.base;
 
 import java.sql.SQLException;
 

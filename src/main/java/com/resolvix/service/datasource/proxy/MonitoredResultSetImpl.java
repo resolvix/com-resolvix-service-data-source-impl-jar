@@ -3,7 +3,7 @@ package com.resolvix.service.datasource.proxy;
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.service.datasource.api.MonitoredResultSet;
 import com.resolvix.service.datasource.api.monitor.Availability;
-import com.resolvix.service.datasource.base.proxy.BaseStaticProxyImpl;
+import com.resolvix.service.datasource.proxy.base.BaseStaticProxyImpl;
 
 import java.io.InputStream;
 import java.io.Reader;

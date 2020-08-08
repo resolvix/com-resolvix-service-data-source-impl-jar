@@ -1,10 +1,11 @@
 package com.resolvix.service.datasource.base;
 
-import com.resolvix.service.datasource.api.SelectorListener;
-import com.resolvix.service.datasource.api.SwitchedDataSource;
-import com.resolvix.service.datasource.api.event.Change;
-import com.resolvix.service.datasource.api.selector.Selector;
+import com.resolvix.lib.event.api.Change;
+import com.resolvix.lib.event.api.Listener;
+import com.resolvix.lib.junction.api.Selector;
+import com.resolvix.lib.junction.base.BaseJunctionImpl;
 
+import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -12,30 +13,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
-public abstract class BaseSwitchedDataSourceImpl<S>
-    implements SwitchedDataSource<S>
+public abstract class BaseSwitchedDataSourceImpl<P, S extends Selector<P>, R extends DataSource>
+    extends BaseJunctionImpl<P, S, R>
+    implements DataSource
 {
-    private Selector<S> selector;
+    private LocalListener listener;
 
-    private volatile S state;
-
-    private SelectorListener<S> listener;
-
-    protected BaseSwitchedDataSourceImpl(Selector<S> selector) {
-        this.selector = selector;
-        this.state = selector.getState();
-        this.listener = new Listener();
-        this.selector.addListener(listener);
+    protected BaseSwitchedDataSourceImpl(P initialState, S selector) {
+        super(initialState, selector);
+        this.listener = new LocalListener();
+        selector.addListener(listener);
     }
 
-    private class Listener
-        implements SelectorListener<S> {
+    private class LocalListener
+        implements Listener<P> {
 
         @Override
-        public void updateState(S state) {
-            synchronized (BaseSwitchedDataSourceImpl.this) {
-                BaseSwitchedDataSourceImpl.this.state = state;
-            }
+        public void signal(P state) {
+            BaseSwitchedDataSourceImpl.this.setState(state);
         }
     }
 
@@ -69,36 +64,12 @@ public abstract class BaseSwitchedDataSourceImpl<S>
     }
 
     //
-    //  SwitchedDataSource<S>
-    //
-
-    @Override
-    public Selector<S> getSelector() {
-        return selector;
-    }
-
-    @Override
-    public synchronized S getState() {
-        return state;
-    }
-
-    //
     //  RecentChangeHistory
     //
 
     @Override
-    public List<Change> getRecentChangeHistory() {
+    public List<Change<P>> getRecentChangeHistory() {
         return Collections.unmodifiableList(
             getSelector().getRecentChangeHistory());
-    }
-
-    //
-    //  Object
-    //
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        this.selector.removeListener(listener);
     }
 }

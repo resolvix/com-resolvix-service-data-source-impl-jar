@@ -34,6 +34,11 @@ public class AvailabilityChangeImpl<A>
     }
 
     @Override
+    public Object getState() {
+        return null;
+    }
+
+    @Override
     public Instant getInstant() {
         return null;
     }

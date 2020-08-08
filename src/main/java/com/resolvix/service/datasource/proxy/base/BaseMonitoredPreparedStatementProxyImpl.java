@@ -1,4 +1,4 @@
-package com.resolvix.service.datasource.base.proxy;
+package com.resolvix.service.datasource.proxy.base;
 
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.service.datasource.api.MonitoredPreparedStatement;

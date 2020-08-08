@@ -1,5 +1,6 @@
 package com.resolvix.service.datasource.selector;
 
+import com.resolvix.lib.junction.base.BaseSelectorImpl;
 import com.resolvix.service.datasource.api.SelectorListener;
 import org.hamcrest.Matchers;
 import org.junit.Assert;

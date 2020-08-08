@@ -1,6 +1,6 @@
 package com.resolvix.lib.monitor.base;
 
-import com.resolvix.lib.monitor.api.Listener;
+import com.resolvix.lib.event.api.Listener;
 import com.resolvix.lib.monitor.api.Probe;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class BaseMonitorImplUT {
     {
 
         public LocalMonitor(ScheduledExecutorService scheduledExecutorService) {
-            super(scheduledExecutorService);
+            super(LocalProperty.VALUE, scheduledExecutorService);
         }
     }
 

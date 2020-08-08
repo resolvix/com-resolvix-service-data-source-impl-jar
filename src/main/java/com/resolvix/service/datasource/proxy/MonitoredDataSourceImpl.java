@@ -3,7 +3,7 @@ package com.resolvix.service.datasource.proxy;
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.service.datasource.api.MonitoredDataSource;
 import com.resolvix.service.datasource.api.event.AvailabilityChange;
-import com.resolvix.service.datasource.api.event.Change;
+import com.resolvix.lib.event.api.Change;
 import com.resolvix.service.datasource.api.monitor.Availability;
 import com.resolvix.service.datasource.api.monitor.Performance;
 import com.resolvix.service.datasource.api.monitor.Reliability;
@@ -64,7 +64,7 @@ public class MonitoredDataSourceImpl
     }
 
     private final class Listener
-        implements com.resolvix.lib.monitor.api.Listener<Availability>
+        implements com.resolvix.lib.event.api.Listener<Availability>
     {
 
         @Override

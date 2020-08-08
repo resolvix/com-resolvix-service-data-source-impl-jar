@@ -1,8 +1,8 @@
 package com.resolvix.service.datasource.base;
 
-import com.resolvix.service.datasource.api.SelectorListener;
-import com.resolvix.service.datasource.api.SwitchedDataSource;
-import com.resolvix.service.datasource.api.selector.Selector;
+import com.resolvix.lib.event.api.Listener;
+import com.resolvix.lib.junction.api.Junction;
+import com.resolvix.lib.junction.api.Selector;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,16 +35,16 @@ public class BaseSwitchedDataSourceImplUT {
     }
 
     private class OnlineOfflineSwitchedDataSourceImpl
-        extends BaseSwitchedDataSourceImpl<State>
-        implements SwitchedDataSource<State>
+        extends BaseSwitchedDataSourceImpl<State, Selector<State>, DataSource>
+        implements Junction<State, Selector<State>, DataSource>
     {
         private DataSource onlineDataSource;
 
         private DataSource offlineDataSource;
 
         protected OnlineOfflineSwitchedDataSourceImpl(
-            DataSource onlineDataSource, DataSource offlineDataSource, Selector<State> selector) {
-            super(selector);
+            DataSource onlineDataSource, DataSource offlineDataSource, State initialState, Selector<State> selector) {
+            super(initialState, selector);
             this.onlineDataSource = onlineDataSource;
             this.offlineDataSource = offlineDataSource;
         }
@@ -107,7 +107,7 @@ public class BaseSwitchedDataSourceImplUT {
     @Mock
     private Selector<State> selector;
 
-    private SelectorListener<State> listener;
+    private Listener<State> listener;
 
     private OnlineOfflineSwitchedDataSourceImpl onlineOfflineSwitchedDataSource;
 
@@ -122,12 +122,12 @@ public class BaseSwitchedDataSourceImplUT {
 
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-                SelectorListener<State> listener = invocationOnMock.getArgument(0);
+                Listener<State> listener = invocationOnMock.getArgument(0);
                 BaseSwitchedDataSourceImplUT.this.listener = listener;
                 return null;
             }
         }).when(selector)
-            .addListener(ArgumentMatchers.any(SelectorListener.class));
+            .addListener(ArgumentMatchers.any(Listener.class));
 
         //
         Mockito.when(onlineDataSource.getConnection())
@@ -138,7 +138,7 @@ public class BaseSwitchedDataSourceImplUT {
             .thenReturn(offlineConnection);
 
         onlineOfflineSwitchedDataSource = new OnlineOfflineSwitchedDataSourceImpl(
-            onlineDataSource, offlineDataSource, selector);
+            onlineDataSource, offlineDataSource, State.NOT_AVAILABLE, selector);
     }
 
     @Test
@@ -149,21 +149,21 @@ public class BaseSwitchedDataSourceImplUT {
 
     @Test
     public void testOnlineState() throws Exception {
-        listener.updateState(State.ONLINE);
+        listener.signal(State.ONLINE);
         Connection connection = onlineOfflineSwitchedDataSource.getConnection();
         Assert.assertThat(connection, Matchers.sameInstance(onlineConnection));
     }
 
     @Test
     public void testWarningState() throws Exception {
-        listener.updateState(State.WARNING);
+        listener.signal(State.WARNING);
         Connection connection = onlineOfflineSwitchedDataSource.getConnection();
         Assert.assertThat(connection, Matchers.sameInstance(onlineConnection));
     }
 
     @Test
     public void testOfflineState() throws Exception {
-        listener.updateState(State.OFFLINE);
+        listener.signal(State.OFFLINE);
         Connection connection = onlineOfflineSwitchedDataSource.getConnection();
         Assert.assertThat(connection, Matchers.sameInstance(offlineConnection));
     }

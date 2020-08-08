@@ -3,7 +3,7 @@ package com.resolvix.service.datasource.proxy;
 import com.resolvix.lib.monitor.api.Monitor;
 import com.resolvix.service.datasource.api.MonitoredConnection;
 import com.resolvix.service.datasource.api.monitor.Availability;
-import com.resolvix.service.datasource.base.proxy.BaseStaticProxyImpl;
+import com.resolvix.service.datasource.proxy.base.BaseStaticProxyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ public class MonitoredConnectionImpl
     }
 
     private final class Listener
-        implements com.resolvix.lib.monitor.api.Listener<Availability>
+        implements com.resolvix.lib.event.api.Listener<Availability>
     {
 
         @Override

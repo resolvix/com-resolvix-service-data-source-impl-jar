@@ -1,10 +1,9 @@
 package com.resolvix.service.datasource.proxy;
 
 import com.resolvix.lib.monitor.api.Monitor;
-import com.resolvix.lib.monitor.base.DynamicProxyUtils;
+import com.resolvix.lib.proxy.DynamicProxyUtils;
 import com.resolvix.service.datasource.api.MonitoredConnection;
 import com.resolvix.service.datasource.api.monitor.Availability;
-import com.resolvix.service.datasource.proxy.MonitoredConnectionInvocationHandlerImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;

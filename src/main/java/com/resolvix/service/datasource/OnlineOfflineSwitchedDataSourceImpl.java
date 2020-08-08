@@ -1,17 +1,17 @@
 package com.resolvix.service.datasource;
 
+import com.resolvix.lib.junction.api.Selector;
 import com.resolvix.service.datasource.api.MonitoredDataSource;
 import com.resolvix.service.datasource.api.OnlineOfflineSwitchedDataSource;
 import com.resolvix.service.datasource.api.State;
-import com.resolvix.service.datasource.api.selector.Selector;
 import com.resolvix.service.datasource.base.BaseSwitchedDataSourceImpl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class OnlineOfflineSwitchedDataSourceImpl<S extends State>
-    extends BaseSwitchedDataSourceImpl<S>
-    implements OnlineOfflineSwitchedDataSource<S>
+public class OnlineOfflineSwitchedDataSourceImpl<P extends State, S extends Selector<P>>
+    extends BaseSwitchedDataSourceImpl<P, S, MonitoredDataSource<?, ?, ?>>
+    implements OnlineOfflineSwitchedDataSource<P, S>
 {
     private MonitoredDataSource<?, ?, ?> monitoredOnlineDataSource;
 
@@ -20,8 +20,8 @@ public class OnlineOfflineSwitchedDataSourceImpl<S extends State>
     public OnlineOfflineSwitchedDataSourceImpl(
         MonitoredDataSource<?, ?, ?> monitoredOnlineDataSource,
         MonitoredDataSource<?, ?, ?> monitoredOfflineDataSource,
-        Selector<S> selector) {
-        super(selector);
+        P initialState, S selector) {
+        super(initialState, selector);
         this.monitoredOnlineDataSource = monitoredOnlineDataSource;
         this.monitoredOfflineDataSource = monitoredOfflineDataSource;
     }
@@ -41,6 +41,10 @@ public class OnlineOfflineSwitchedDataSourceImpl<S extends State>
         throw new IllegalStateException();
     }
 
+    //
+    //  DataSource
+    //
+
     @Override
     public Connection getConnection() throws SQLException {
         return getMonitoredDataSource().getConnection();
@@ -50,6 +54,10 @@ public class OnlineOfflineSwitchedDataSourceImpl<S extends State>
     public Connection getConnection(String username, String password) throws SQLException {
         return getMonitoredDataSource().getConnection(username, password);
     }
+
+    //
+    //  Wrapper
+    //
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {

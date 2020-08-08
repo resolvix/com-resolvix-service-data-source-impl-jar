@@ -53,7 +53,7 @@ public class MonitoredConnectionInvocationHandlerImpl
     }
 
     private final class Listener
-        implements com.resolvix.lib.monitor.api.Listener<Availability>
+        implements com.resolvix.lib.event.api.Listener<Availability>
     {
 
         @Override

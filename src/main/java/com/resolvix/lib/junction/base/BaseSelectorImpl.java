@@ -1,4 +1,4 @@
-package com.resolvix.service.datasource.selector;
+package com.resolvix.lib.junction.base;
 
 import com.resolvix.service.datasource.api.SelectorListener;
 import com.resolvix.service.datasource.api.event.StateChange;
