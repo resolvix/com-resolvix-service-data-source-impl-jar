@@ -36,7 +36,7 @@ public class OnlineOfflineSwitchedDataSourceImpl<P extends State, S extends Sele
 
         if (state.isNotAvailable())
             // Connection not available
-            throw new SQLException();
+            throw new SQLException("Connection not available", "08000");
 
         throw new IllegalStateException();
     }
