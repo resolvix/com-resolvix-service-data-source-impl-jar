@@ -51,10 +51,31 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
     @Before
     public void before() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        //
+        //  getConnection
+        //
+
         when(monitoredOnlineDataSource.getConnection())
             .thenReturn(onlineConnection);
+
         when(monitoredOfflineDataSource.getConnection())
             .thenReturn(offlineConnection);
+
+        //
+        //  getConnection(String, String)
+        //
+
+        when(monitoredOnlineDataSource.getConnection(any(String.class), any(String.class)))
+            .thenReturn(onlineConnection);
+
+        when(monitoredOfflineDataSource.getConnection(any(String.class), any(String.class)))
+            .thenReturn(offlineConnection);
+
+        //
+        //
+        //
+
         doAnswer(new Answer<Void>() {
 
             @Override
@@ -74,6 +95,15 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection(),
             sameInstance(onlineConnection));
+
+    }
+
+    @Test
+    public void getConnectionWithUserNamePasswordWhenOnline() throws Exception {
+        listener.notify(State.ONLINE);
+        assertThat(
+            onlineOfflineSwitchedDataSource.getConnection("<userName>", "<password>"),
+            sameInstance(onlineConnection));
     }
 
     @Test
@@ -82,12 +112,27 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection(),
             sameInstance(offlineConnection));
+
+    }
+
+    @Test
+    public void getConnectionWithUserNamePasswordWhenOffline() throws Exception {
+        listener.notify(State.OFFLINE);
+        assertThat(
+            onlineOfflineSwitchedDataSource.getConnection("<userName>", "<password>"),
+            sameInstance(offlineConnection));
     }
 
     @Test
     public void getConnectionWhenNotAvailable() throws Exception {
         expectedException.expect(SQLException.class);
         onlineOfflineSwitchedDataSource.getConnection();
+    }
+
+    @Test
+    public void getConnectionWithUserNamePasswordWhenNotAvailable() throws Exception {
+        expectedException.expect(SQLException.class);
+        onlineOfflineSwitchedDataSource.getConnection("<userName>", "<password>");
     }
 
     @Test
