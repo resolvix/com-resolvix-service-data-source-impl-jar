@@ -14,7 +14,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static com.resolvix.service.datasource.SqlExceptionUtils.isConnectionException;
+import static com.resolvix.service.datasource.SqlExceptionUtils.isTransientConnectionException;
 
 public class MonitoredConnectionImpl
     extends BaseStaticProxyImpl
@@ -73,7 +73,7 @@ public class MonitoredConnectionImpl
     @Override
     protected void handleSqlException(SQLException e)
     {
-        if (isConnectionException(e))
+        if (isTransientConnectionException(e))
             handleSqlConnectionException(e);
     }
 

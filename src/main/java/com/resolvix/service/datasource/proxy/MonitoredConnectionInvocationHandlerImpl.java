@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static com.resolvix.service.datasource.SqlExceptionUtils.isConnectionException;
+import static com.resolvix.service.datasource.SqlExceptionUtils.isTransientConnectionException;
 
 public class MonitoredConnectionInvocationHandlerImpl
     implements InvocationHandler
@@ -79,7 +79,7 @@ public class MonitoredConnectionInvocationHandlerImpl
 
     private void handleSqlException(SQLException e)
     {
-        if (isConnectionException(e))
+        if (isTransientConnectionException(e))
             handleSqlConnectionException(e);
     }
 

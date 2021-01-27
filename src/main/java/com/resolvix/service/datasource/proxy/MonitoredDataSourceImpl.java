@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
-import static com.resolvix.service.datasource.SqlExceptionUtils.isConnectionException;
+import static com.resolvix.service.datasource.SqlExceptionUtils.isTransientConnectionException;
 
 public class MonitoredDataSourceImpl
     implements MonitoredDataSource<Availability, Reliability, Performance>
@@ -87,7 +87,7 @@ public class MonitoredDataSourceImpl
     }
 
     private void handleSqlException(SQLException e) {
-        if (isConnectionException(e))
+        if (isTransientConnectionException(e))
             handleSqlConnectionException(e);
     }
 
