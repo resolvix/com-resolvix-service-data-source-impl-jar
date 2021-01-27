@@ -59,8 +59,8 @@ public class MonitoredConnectionImpl
     {
 
         @Override
-        public void notify(Availability property) {
-            MonitoredConnectionImpl.this.setAvailability(property);
+        public void notify(Availability previous, Availability current) {
+            MonitoredConnectionImpl.this.setAvailability(current);
         }
     }
 

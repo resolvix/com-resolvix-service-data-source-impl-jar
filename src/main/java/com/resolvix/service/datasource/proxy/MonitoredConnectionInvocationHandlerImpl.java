@@ -57,8 +57,8 @@ public class MonitoredConnectionInvocationHandlerImpl
     {
 
         @Override
-        public void notify(Availability property) {
-            MonitoredConnectionInvocationHandlerImpl.this.setAvailability(property);
+        public void notify(Availability previous, Availability current) {
+            MonitoredConnectionInvocationHandlerImpl.this.setAvailability(current);
         }
     }
 

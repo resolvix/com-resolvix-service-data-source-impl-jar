@@ -91,7 +91,7 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
 
     @Test
     public void getConnectionWhenOnline() throws Exception {
-        listener.notify(State.ONLINE);
+        listener.notify(State.OFFLINE, State.ONLINE);
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection(),
             sameInstance(onlineConnection));
@@ -100,7 +100,7 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
 
     @Test
     public void getConnectionWithUserNamePasswordWhenOnline() throws Exception {
-        listener.notify(State.ONLINE);
+        listener.notify(State.OFFLINE, State.ONLINE);
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection("<userName>", "<password>"),
             sameInstance(onlineConnection));
@@ -108,7 +108,7 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
 
     @Test
     public void getConnectionWhenOffline() throws Exception {
-        listener.notify(State.OFFLINE);
+        listener.notify(State.OFFLINE, State.OFFLINE);
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection(),
             sameInstance(offlineConnection));
@@ -117,7 +117,7 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
 
     @Test
     public void getConnectionWithUserNamePasswordWhenOffline() throws Exception {
-        listener.notify(State.OFFLINE);
+        listener.notify(State.ONLINE, State.OFFLINE);
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection("<userName>", "<password>"),
             sameInstance(offlineConnection));
@@ -144,17 +144,17 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
             assertThat(e, instanceOf(SQLException.class));
         }
 
-        listener.notify(State.ONLINE);
+        listener.notify(State.OFFLINE, State.ONLINE);
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection(),
             sameInstance(onlineConnection));
 
-        listener.notify(State.OFFLINE);
+        listener.notify(State.ONLINE, State.OFFLINE);
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection(),
             sameInstance(offlineConnection));
 
-        listener.notify(State.NOT_AVAILABLE);
+        listener.notify(State.OFFLINE, State.NOT_AVAILABLE);
         try {
             onlineOfflineSwitchedDataSource.getConnection();
             throw new IllegalStateException();
@@ -162,12 +162,12 @@ public class OnlineOfflineSwitchedDataSourceImplUT {
             assertThat(e, instanceOf(SQLException.class));
         }
 
-        listener.notify(State.ONLINE);
+        listener.notify(State.NOT_AVAILABLE, State.ONLINE);
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection(),
             sameInstance(onlineConnection));
 
-        listener.notify(State.OFFLINE);
+        listener.notify(State.NOT_AVAILABLE, State.OFFLINE);
         assertThat(
             onlineOfflineSwitchedDataSource.getConnection(),
             sameInstance(offlineConnection));

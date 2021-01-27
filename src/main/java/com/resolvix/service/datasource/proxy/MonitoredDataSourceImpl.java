@@ -68,8 +68,8 @@ public class MonitoredDataSourceImpl
     {
 
         @Override
-        public void notify(Availability property) {
-            MonitoredDataSourceImpl.this.setAvailability(property);
+        public void notify(Availability previous, Availability current) {
+            MonitoredDataSourceImpl.this.setAvailability(current);
         }
     }
 
